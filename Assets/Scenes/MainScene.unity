@@ -1702,6 +1702,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ae27119cf1dae54fb21521fa315534c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  worldSize:
+    x: 20
+    z: 20
+  grassCube: {fileID: 8933353079184782786, guid: 4d80cb7bb0192ad40b040d09d8e6863c, type: 3}
+  dirtCube: {fileID: 8933353079184782786, guid: ec0b98f98eadcbf499074b21f105c8c3, type: 3}
+  shallowWaterCube: {fileID: 8933353079184782786, guid: 26567bf87f119c24bbe78f3d01958cf0, type: 3}
+  deepWaterCube: {fileID: 8933353079184782786, guid: 468801c4d93bfa14098b5701f1f7b2fe, type: 3}
 --- !u!4 &1676683585
 Transform:
   m_ObjectHideFlags: 0
