@@ -513,7 +513,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: X 2
+  m_text: 'scale
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -576,7 +578,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: -302.61548, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -966,7 +968,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: X 1
+  m_text: Frequency
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1029,7 +1031,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: -253.03296, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1502,7 +1504,7 @@ GameObject:
   - component: {fileID: 1409980688}
   - component: {fileID: 1409980689}
   m_Layer: 5
-  m_Name: Slider (1)
+  m_Name: Scale Slider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1581,7 +1583,19 @@ MonoBehaviour:
   m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1676683586}
+        m_TargetAssemblyTypeName: WorldGeneratorControls, Assembly-CSharp
+        m_MethodName: AdjustScale
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1466039601
 GameObject:
   m_ObjectHideFlags: 0
@@ -1593,7 +1607,7 @@ GameObject:
   - component: {fileID: 1466039602}
   - component: {fileID: 1466039603}
   m_Layer: 5
-  m_Name: Slider
+  m_Name: Frequency Slider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1672,7 +1686,19 @@ MonoBehaviour:
   m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1676683586}
+        m_TargetAssemblyTypeName: WorldGeneratorControls, Assembly-CSharp
+        m_MethodName: AdjustFrequency
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1676683583
 GameObject:
   m_ObjectHideFlags: 0
@@ -1683,6 +1709,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1676683585}
   - component: {fileID: 1676683584}
+  - component: {fileID: 1676683586}
   m_Layer: 0
   m_Name: WorldGenerator
   m_TagString: Untagged
@@ -1702,6 +1729,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ae27119cf1dae54fb21521fa315534c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  frequency: 5.85
+  scale: 30
   worldSize:
     x: 50
     z: 50
@@ -1724,6 +1753,28 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1676683586
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1676683583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80710ed7a055a0c47a84fd26904ae152, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  frequencySlider: {fileID: 1466039603}
+  scaleSlider: {fileID: 1409980689}
+  frequencyText: {fileID: 746758711}
+  scaleText: {fileID: 446424575}
+  frequencyRange:
+    min: -10
+    max: 10
+  scaleRange:
+    min: -100
+    max: 100
 --- !u!1 &1833331671
 GameObject:
   m_ObjectHideFlags: 0

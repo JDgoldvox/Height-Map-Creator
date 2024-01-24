@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class TerrainGenerator : MonoBehaviour
 {
-    float temp = 0;
+    [HideInInspector] public float frequency = 5.85f;
+    [HideInInspector] public float scale = 30f;
 
-    private float frequency = 0.1f;
-    private float scale = 10f;
+    private WorldGeneratorControls S_worldGeneratorControls;
 
     [SerializeField] private WorldSize worldSize = new WorldSize();
 
@@ -16,11 +17,12 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField] private GameObject shallowWaterCube;
     [SerializeField] private GameObject deepWaterCube;
 
-    private List<GameObject> worldCubes = new List<GameObject>();
+    private List<GameObject> grassCubes = new List<GameObject>();
+    private List<GameObject> underGroundCubes = new List<GameObject>();
 
     private void Awake()
     {
-
+        S_worldGeneratorControls = GetComponent<WorldGeneratorControls>();
     }
 
     // Start is called before the first frame update
@@ -39,19 +41,35 @@ public class TerrainGenerator : MonoBehaviour
     {
         float noiseNumber = 0;
 
+        //Top grass layer
+
         //loop through all blocks on map
         for(int x = 0; x < worldSize.x; x++)
         {
             for(int z = 0; z < worldSize.z; z++)
             {
-                float adjustedX = x * frequency; // Adjust the scale as needed
-                float adjustedZ = z * frequency; // Adjust the scale as needed
+                float adjustedX = x / worldSize.x; 
+                float adjustedZ = z / worldSize.z;
+                adjustedX *= frequency; 
+                adjustedZ *= frequency; 
 
                 noiseNumber = NoiseFunction.GenerateNoise(adjustedX, adjustedZ);
                 GameObject newCubeObj = Instantiate(grassCube, new Vector3(x, noiseNumber * scale, z), Quaternion.identity);
-                worldCubes.Add(newCubeObj);
+                grassCubes.Add(newCubeObj);
+            }
+        }
 
-                Debug.Log($"created new cube with: {noiseNumber} as y\n");
+        //underground layer
+        //loop through all blocks on map
+        foreach(GameObject obj in grassCubes)
+        {
+            //place dirt blocks below for some height
+            int height = 3;
+            for(int y = 0; y < height; y++)
+            {
+                var objPos = obj.transform.position;
+                GameObject newCubeObj = Instantiate(dirtCube, new Vector3(objPos.x, objPos.y - (float)y, objPos.z), Quaternion.identity);
+                underGroundCubes.Add(newCubeObj);
             }
         }
     }

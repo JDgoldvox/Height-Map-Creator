@@ -9,3 +9,15 @@ public struct WorldSize
         this.z = z;
     }
 }
+
+[System.Serializable]
+public struct RangeWithMinMax
+{
+    public float min;
+    public float max;
+    public RangeWithMinMax(float min = 0, float max = 0)
+    {
+        this.min = min;
+        this.max = max;
+    }
+}
