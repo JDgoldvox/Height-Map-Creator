@@ -83,7 +83,7 @@ public class TerrainGenerator : MonoBehaviour
         //}
     }
 
-    public void UpdateBlocks()
+    public void UpdateBlocks(bool combine)
     {
         float noiseNumber = 0;
 
@@ -100,7 +100,10 @@ public class TerrainGenerator : MonoBehaviour
             noiseNumber = NoiseFunction.GenerateNoise(adjustedX, adjustedZ);
             obj.transform.position = new Vector3(objPosition.x, noiseNumber * scale, objPosition.z);
 
-            //CombineMesh(grassCubes, combinedGrassCubes, grassCubeMeshes);
+            if (combine)
+            {
+                CombineMesh(grassCubes, combinedGrassCubes, grassCubeMeshes);
+            }
         }
     }
 
@@ -151,4 +154,9 @@ public class TerrainGenerator : MonoBehaviour
         }
         meshRenderer.material = sharedMaterial;
     }
+
+    //ShowAllIndividualCubes()
+    //{
+
+    //}
 }

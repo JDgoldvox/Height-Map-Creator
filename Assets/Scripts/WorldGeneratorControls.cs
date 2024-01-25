@@ -41,8 +41,8 @@ public class WorldGeneratorControls : MonoBehaviour
     {
         IsMouseDragging();
 
-        //UpdateBlocksWhenSliderDropped(ref frequencyOldValue, ref frequencyNewValue);
-        //UpdateBlocksWhenSliderDropped(ref scaleOldValue, ref scaleNewValue);
+        UpdateBlocksWhenSliderDropped(ref frequencyOldValue, ref frequencyNewValue);
+        UpdateBlocksWhenSliderDropped(ref scaleOldValue, ref scaleNewValue);
     }
 
     private void MaxMinSliderValues()
@@ -53,7 +53,7 @@ public class WorldGeneratorControls : MonoBehaviour
         scaleSlider.minValue = scaleRange.min;
         scaleSlider.maxValue = scaleRange.max;
 
-        S_terrainGenerator.UpdateBlocks();
+        S_terrainGenerator.UpdateBlocks(true);
     }
 
     public void AdjustFrequency()
@@ -64,7 +64,7 @@ public class WorldGeneratorControls : MonoBehaviour
         S_terrainGenerator.frequency = frequencySlider.value;
         frequencyText.text = "Frequency: " + frequencySlider.value;
 
-        S_terrainGenerator.UpdateBlocks();
+        S_terrainGenerator.UpdateBlocks(false);
     }
 
     public void AdjustScale()
@@ -75,7 +75,7 @@ public class WorldGeneratorControls : MonoBehaviour
         S_terrainGenerator.scale = scaleSlider.value;
         scaleText.text = "Scale: " + scaleSlider.value;
 
-        S_terrainGenerator.UpdateBlocks();
+        S_terrainGenerator.UpdateBlocks(false);
     }
 
     void UpdateBlocksWhenSliderDropped(ref float oldValue, ref float newValue)
@@ -83,7 +83,7 @@ public class WorldGeneratorControls : MonoBehaviour
         //when slider is dropped, create one big mesh
         if(newValue != oldValue && !isSliderBeingDragged)
         {
-            S_terrainGenerator.UpdateBlocks();
+            S_terrainGenerator.UpdateBlocks(true);
             oldValue = newValue;
 
             Debug.Log("slider dropped!");
