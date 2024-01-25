@@ -1915,8 +1915,8 @@ MonoBehaviour:
   frequency: 5.85
   scale: 30
   worldSize:
-    x: 30
-    z: 30
+    x: 20
+    z: 20
   grassCube: {fileID: 8933353079184782786, guid: 4d80cb7bb0192ad40b040d09d8e6863c, type: 3}
   dirtCube: {fileID: 8933353079184782786, guid: ec0b98f98eadcbf499074b21f105c8c3, type: 3}
   shallowWaterCube: {fileID: 8933353079184782786, guid: 26567bf87f119c24bbe78f3d01958cf0, type: 3}
@@ -1953,8 +1953,8 @@ MonoBehaviour:
   frequencyText: {fileID: 746758711}
   scaleText: {fileID: 446424575}
   frequencyRange:
-    min: -10
-    max: 10
+    min: -20
+    max: 20
   scaleRange:
     min: -100
     max: 100

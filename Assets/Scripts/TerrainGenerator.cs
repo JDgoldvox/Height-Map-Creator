@@ -20,6 +20,12 @@ public class TerrainGenerator : MonoBehaviour
     private List<GameObject> grassCubes = new List<GameObject>();
     private List<GameObject> underGroundCubes = new List<GameObject>();
 
+    private List<MeshFilter> grassCubeMeshes = new List<MeshFilter>();
+
+    private GameObject combinedGrassCubes;
+
+    Mesh combinedGrassMesh;
+
     private void Awake()
     {
         S_worldGeneratorControls = GetComponent<WorldGeneratorControls>();
@@ -28,6 +34,9 @@ public class TerrainGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        combinedGrassCubes = new GameObject("combined grass cubes");
+        combinedGrassMesh = new Mesh();
+
         CreateHeightMap();
     }
 
@@ -90,6 +99,56 @@ public class TerrainGenerator : MonoBehaviour
 
             noiseNumber = NoiseFunction.GenerateNoise(adjustedX, adjustedZ);
             obj.transform.position = new Vector3(objPosition.x, noiseNumber * scale, objPosition.z);
+
+            //CombineMesh(grassCubes, combinedGrassCubes, grassCubeMeshes);
         }
+    }
+
+    void CombineMesh(List<GameObject> originalCubes, GameObject combinedMeshGameObject, List<MeshFilter> meshFilters)
+    {
+        meshFilters.Clear();
+
+        // Make an array of combine instances
+        var combinedInstance = new CombineInstance[originalCubes.Count];
+
+        // Store material and mesh renderer references outside the loop
+        Material sharedMaterial = originalCubes[0].GetComponent<MeshRenderer>().sharedMaterial;
+        MeshRenderer meshRenderer = combinedMeshGameObject.GetComponent<MeshRenderer>();
+
+        // Set the meshes and transform in the combined instance
+        for (int i = 0; i < originalCubes.Count; i++)
+        {
+            MeshFilter meshFilter = originalCubes[i].GetComponent<MeshFilter>();
+            if (meshFilter != null)
+            {
+                combinedInstance[i].mesh = meshFilter.sharedMesh;
+                combinedInstance[i].transform = originalCubes[i].transform.localToWorldMatrix;
+                meshFilters.Add(meshFilter);
+            }
+        }
+
+        // Combine instances into mesh
+        Mesh combinedGrassMesh = new Mesh();
+        combinedGrassMesh.CombineMeshes(combinedInstance);
+
+        // New game object
+        Transform combinedTransform = combinedMeshGameObject.transform;
+        combinedTransform.position = originalCubes[0].transform.position;
+        combinedTransform.rotation = originalCubes[0].transform.rotation;
+
+        // Add or update MeshFilter
+        MeshFilter combinedMeshFilter = combinedMeshGameObject.GetComponent<MeshFilter>();
+        if (combinedMeshFilter == null)
+        {
+            combinedMeshFilter = combinedMeshGameObject.AddComponent<MeshFilter>();
+        }
+        combinedMeshFilter.mesh = combinedGrassMesh;
+
+        // Add or update MeshRenderer
+        if (meshRenderer == null)
+        {
+            meshRenderer = combinedMeshGameObject.AddComponent<MeshRenderer>();
+        }
+        meshRenderer.material = sharedMaterial;
     }
 }

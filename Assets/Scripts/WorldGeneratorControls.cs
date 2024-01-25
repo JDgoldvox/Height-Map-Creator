@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.InputSystem;
+//REMOVE UI ELEMENTS
 
 public class WorldGeneratorControls : MonoBehaviour
 {
@@ -15,7 +17,15 @@ public class WorldGeneratorControls : MonoBehaviour
     [SerializeField] private RangeWithMinMax frequencyRange;
     [SerializeField] private RangeWithMinMax scaleRange;
 
+    private float frequencyOldValue = 0f;
+    private float scaleOldValue = 0f;
+
+    private float frequencyNewValue = 0f;
+    private float scaleNewValue = 0f;
+
     TerrainGenerator S_terrainGenerator;
+
+    private bool isSliderBeingDragged = false;
 
     private void Awake()
     {
@@ -25,6 +35,14 @@ public class WorldGeneratorControls : MonoBehaviour
     private void Start()
     {
         MaxMinSliderValues();
+    }
+
+    private void Update()
+    {
+        IsMouseDragging();
+
+        //UpdateBlocksWhenSliderDropped(ref frequencyOldValue, ref frequencyNewValue);
+        //UpdateBlocksWhenSliderDropped(ref scaleOldValue, ref scaleNewValue);
     }
 
     private void MaxMinSliderValues()
@@ -40,6 +58,9 @@ public class WorldGeneratorControls : MonoBehaviour
 
     public void AdjustFrequency()
     {
+        frequencyOldValue = S_terrainGenerator.frequency;
+        frequencyNewValue = frequencySlider.value;
+
         S_terrainGenerator.frequency = frequencySlider.value;
         frequencyText.text = "Frequency: " + frequencySlider.value;
 
@@ -48,9 +69,36 @@ public class WorldGeneratorControls : MonoBehaviour
 
     public void AdjustScale()
     {
+        scaleOldValue = S_terrainGenerator.scale;
+        scaleNewValue = scaleSlider.value;
+
         S_terrainGenerator.scale = scaleSlider.value;
-        frequencyText.text = "Scale: " + scaleSlider.value;
+        scaleText.text = "Scale: " + scaleSlider.value;
 
         S_terrainGenerator.UpdateBlocks();
+    }
+
+    void UpdateBlocksWhenSliderDropped(ref float oldValue, ref float newValue)
+    {
+        //when slider is dropped, create one big mesh
+        if(newValue != oldValue && !isSliderBeingDragged)
+        {
+            S_terrainGenerator.UpdateBlocks();
+            oldValue = newValue;
+
+            Debug.Log("slider dropped!");
+        }
+    }
+
+    private void IsMouseDragging()
+    {
+        if (Mouse.current.leftButton.IsPressed())
+        {
+            isSliderBeingDragged = true;
+        }
+        else
+        {
+            isSliderBeingDragged = false;
+        }
     }
 }
