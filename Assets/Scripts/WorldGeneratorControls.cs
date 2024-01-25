@@ -15,11 +15,11 @@ public class WorldGeneratorControls : MonoBehaviour
     [SerializeField] private RangeWithMinMax frequencyRange;
     [SerializeField] private RangeWithMinMax scaleRange;
 
-    TerrainGenerator terrainGenerator;
+    TerrainGenerator S_terrainGenerator;
 
     private void Awake()
     {
-        terrainGenerator = GetComponent<TerrainGenerator>();
+        S_terrainGenerator = GetComponent<TerrainGenerator>();
     }
 
     private void Start()
@@ -34,17 +34,23 @@ public class WorldGeneratorControls : MonoBehaviour
 
         scaleSlider.minValue = scaleRange.min;
         scaleSlider.maxValue = scaleRange.max;
+
+        S_terrainGenerator.UpdateBlocks();
     }
 
     public void AdjustFrequency()
     {
-        terrainGenerator.frequency = frequencySlider.value;
+        S_terrainGenerator.frequency = frequencySlider.value;
         frequencyText.text = "Frequency: " + frequencySlider.value;
+
+        S_terrainGenerator.UpdateBlocks();
     }
 
     public void AdjustScale()
     {
-        terrainGenerator.scale = scaleSlider.value;
+        S_terrainGenerator.scale = scaleSlider.value;
         frequencyText.text = "Scale: " + scaleSlider.value;
+
+        S_terrainGenerator.UpdateBlocks();
     }
 }

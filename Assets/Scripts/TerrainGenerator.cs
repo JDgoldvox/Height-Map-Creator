@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class TerrainGenerator : MonoBehaviour
 {
-    [HideInInspector] public float frequency = 5.85f;
-    [HideInInspector] public float scale = 30f;
+    [HideInInspector] public float frequency = 1.0f;
+    [HideInInspector] public float scale = 1.0f;
 
     private WorldGeneratorControls S_worldGeneratorControls;
 
@@ -61,16 +61,35 @@ public class TerrainGenerator : MonoBehaviour
 
         //underground layer
         //loop through all blocks on map
-        foreach(GameObject obj in grassCubes)
+        //foreach(GameObject obj in grassCubes)
+        //{
+        //    //place dirt blocks below for some height
+        //    int height = 10;
+        //    for(int y = 0; y < height; y++)
+        //    {
+        //        var objPos = obj.transform.position;
+        //        GameObject newCubeObj = Instantiate(dirtCube, new Vector3(objPos.x, objPos.y - (float)y, objPos.z), Quaternion.identity);
+        //        underGroundCubes.Add(newCubeObj);
+        //    }
+        //}
+    }
+
+    public void UpdateBlocks()
+    {
+        float noiseNumber = 0;
+
+        //loop through all blocks on map
+        foreach(var obj in grassCubes)
         {
-            //place dirt blocks below for some height
-            int height = 3;
-            for(int y = 0; y < height; y++)
-            {
-                var objPos = obj.transform.position;
-                GameObject newCubeObj = Instantiate(dirtCube, new Vector3(objPos.x, objPos.y - (float)y, objPos.z), Quaternion.identity);
-                underGroundCubes.Add(newCubeObj);
-            }
+            Vector3 objPosition = obj.transform.position;
+
+            float adjustedX = objPosition.x / worldSize.x;
+            float adjustedZ = objPosition.z / worldSize.z;
+            adjustedX *= frequency;
+            adjustedZ *= frequency;
+
+            noiseNumber = NoiseFunction.GenerateNoise(adjustedX, adjustedZ);
+            obj.transform.position = new Vector3(objPosition.x, noiseNumber * scale, objPosition.z);
         }
     }
 }
