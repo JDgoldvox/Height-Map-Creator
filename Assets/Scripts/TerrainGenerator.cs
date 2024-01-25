@@ -24,7 +24,8 @@ public class TerrainGenerator : MonoBehaviour
 
     private GameObject combinedGrassCubes;
 
-    Mesh combinedGrassMesh;
+    private bool showAllIndividualCubes = false;
+    private bool showGiantMesh = true;
 
     private void Awake()
     {
@@ -35,7 +36,6 @@ public class TerrainGenerator : MonoBehaviour
     void Start()
     {
         combinedGrassCubes = new GameObject("combined grass cubes");
-        combinedGrassMesh = new Mesh();
 
         CreateHeightMap();
     }
@@ -136,7 +136,7 @@ public class TerrainGenerator : MonoBehaviour
 
         // New game object
         Transform combinedTransform = combinedMeshGameObject.transform;
-        combinedTransform.position = originalCubes[0].transform.position;
+        combinedTransform.position = new Vector3 (originalCubes[0].transform.position.x, originalCubes[0].transform.position.x, originalCubes[0].transform.position.z);
         combinedTransform.rotation = originalCubes[0].transform.rotation;
 
         // Add or update MeshFilter
@@ -155,8 +155,54 @@ public class TerrainGenerator : MonoBehaviour
         meshRenderer.material = sharedMaterial;
     }
 
-    //ShowAllIndividualCubes()
-    //{
+    public void ShowAllIndividualCubes()
+    {
+        if(showAllIndividualCubes) {
+            return;
+        }
 
-    //}
+        foreach(var obj in grassCubes)
+        {
+            obj.SetActive(true); 
+        }
+
+        showAllIndividualCubes = true;
+    }
+
+    public void HideAllIndividualCubes()
+    {
+        if (!showAllIndividualCubes)
+        {
+            return;
+        }
+
+        foreach (var obj in grassCubes)
+        {
+            obj.SetActive(false);
+        }
+
+        showAllIndividualCubes = false;
+    }
+
+    public void ShowGiantMesh()
+    {
+        if (showGiantMesh)
+        {
+            return;
+        }
+
+        combinedGrassCubes.SetActive(true);
+        showGiantMesh = true;
+    }
+
+    public void HideGiantMesh()
+    { 
+        if (!showGiantMesh)
+        {
+            return;
+        }
+
+        combinedGrassCubes.SetActive(false);
+        showGiantMesh = false;
+    }
 }

@@ -47,6 +47,7 @@ public class WorldGeneratorControls : MonoBehaviour
 
     private void MaxMinSliderValues()
     {
+
         frequencySlider.minValue = frequencyRange.min;
         frequencySlider.maxValue = frequencyRange.max;
 
@@ -58,6 +59,9 @@ public class WorldGeneratorControls : MonoBehaviour
 
     public void AdjustFrequency()
     {
+        S_terrainGenerator.HideGiantMesh();
+        S_terrainGenerator.ShowAllIndividualCubes();
+
         frequencyOldValue = S_terrainGenerator.frequency;
         frequencyNewValue = frequencySlider.value;
 
@@ -69,6 +73,9 @@ public class WorldGeneratorControls : MonoBehaviour
 
     public void AdjustScale()
     {
+        S_terrainGenerator.HideGiantMesh();
+        S_terrainGenerator.ShowAllIndividualCubes();
+
         scaleOldValue = S_terrainGenerator.scale;
         scaleNewValue = scaleSlider.value;
 
@@ -87,6 +94,9 @@ public class WorldGeneratorControls : MonoBehaviour
             oldValue = newValue;
 
             Debug.Log("slider dropped!");
+
+            S_terrainGenerator.HideAllIndividualCubes();
+            S_terrainGenerator.ShowGiantMesh();
         }
     }
 
