@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
 [System.Serializable]
 public struct WorldSize
 {
@@ -19,5 +23,15 @@ public struct RangeWithMinMax
     {
         this.min = min;
         this.max = max;
+    }
+}
+
+public class UnderGroundCore
+{
+    public List<GameObject> cubes;
+
+    public UnderGroundCore()
+    {
+        cubes = new List<GameObject>();
     }
 }

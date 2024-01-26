@@ -47,7 +47,6 @@ public class WorldGeneratorControls : MonoBehaviour
 
     private void MaxMinSliderValues()
     {
-
         frequencySlider.minValue = frequencyRange.min;
         frequencySlider.maxValue = frequencyRange.max;
 
@@ -95,7 +94,7 @@ public class WorldGeneratorControls : MonoBehaviour
 
             Debug.Log("slider dropped!");
 
-            S_terrainGenerator.HideAllIndividualCubes();
+            //S_terrainGenerator.HideAllIndividualCubes();
             S_terrainGenerator.ShowGiantMesh();
         }
     }

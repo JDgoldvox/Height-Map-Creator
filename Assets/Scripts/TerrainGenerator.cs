@@ -17,15 +17,18 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField] private GameObject shallowWaterCube;
     [SerializeField] private GameObject deepWaterCube;
 
+    private GameObject combinedGrassCubes;
     private List<GameObject> grassCubes = new List<GameObject>();
-    private List<GameObject> underGroundCubes = new List<GameObject>();
-
     private List<MeshFilter> grassCubeMeshes = new List<MeshFilter>();
 
-    private GameObject combinedGrassCubes;
+    private GameObject combinedUnderGroundCubes;
+    private List<GameObject> underGroundCubes = new List<GameObject>();
+    private List<MeshFilter> underGroundCubeMeshes = new List<MeshFilter>();
 
     private bool showAllIndividualCubes = false;
     private bool showGiantMesh = true;
+
+    Dictionary<GameObject, UnderGroundCore> world = new Dictionary<GameObject, UnderGroundCore>();
 
     private void Awake()
     {
@@ -36,6 +39,7 @@ public class TerrainGenerator : MonoBehaviour
     void Start()
     {
         combinedGrassCubes = new GameObject("combined grass cubes");
+        combinedUnderGroundCubes = new GameObject("combined under ground cubes");
 
         CreateHeightMap();
     }
@@ -70,17 +74,17 @@ public class TerrainGenerator : MonoBehaviour
 
         //underground layer
         //loop through all blocks on map
-        //foreach(GameObject obj in grassCubes)
-        //{
-        //    //place dirt blocks below for some height
-        //    int height = 10;
-        //    for(int y = 0; y < height; y++)
-        //    {
-        //        var objPos = obj.transform.position;
-        //        GameObject newCubeObj = Instantiate(dirtCube, new Vector3(objPos.x, objPos.y - (float)y, objPos.z), Quaternion.identity);
-        //        underGroundCubes.Add(newCubeObj);
-        //    }
-        //}
+        foreach (GameObject obj in grassCubes)
+        {
+            //place dirt blocks below for some height
+            int height = 3;
+            for (int y = 0; y < height; y++)
+            {
+                var objPos = obj.transform.position;
+                GameObject newCubeObj = Instantiate(dirtCube, new Vector3(objPos.x, objPos.y - (float)y, objPos.z), Quaternion.identity);
+                underGroundCubes.Add(newCubeObj);
+            }
+        }
     }
 
     public void UpdateBlocks(bool combine)
@@ -100,10 +104,28 @@ public class TerrainGenerator : MonoBehaviour
             noiseNumber = NoiseFunction.GenerateNoise(adjustedX, adjustedZ);
             obj.transform.position = new Vector3(objPosition.x, noiseNumber * scale, objPosition.z);
 
-            if (combine)
-            {
-                CombineMesh(grassCubes, combinedGrassCubes, grassCubeMeshes);
-            }
+            //if (combine)
+            //{
+            //    CombineMesh(grassCubes, combinedGrassCubes, grassCubeMeshes);
+            //}
+        }
+
+        foreach (var obj in underGroundCubes)
+        {
+            Vector3 objPosition = obj.transform.position;
+
+            float adjustedX = objPosition.x / worldSize.x;
+            float adjustedZ = objPosition.z / worldSize.z;
+            adjustedX *= frequency;
+            adjustedZ *= frequency;
+
+            noiseNumber = NoiseFunction.GenerateNoise(adjustedX, adjustedZ);
+            obj.transform.position = new Vector3(objPosition.x, objPosition.y * scale, objPosition.z);
+
+            //if (combine)
+            //{
+            //    CombineMesh(underGroundCubes, combinedUnderGroundCubes, underGroundCubeMeshes);
+            //}
         }
     }
 
@@ -166,6 +188,11 @@ public class TerrainGenerator : MonoBehaviour
             obj.SetActive(true); 
         }
 
+        foreach (var obj in underGroundCubes)
+        {
+            obj.SetActive(true);
+        }
+
         showAllIndividualCubes = true;
     }
 
@@ -181,6 +208,11 @@ public class TerrainGenerator : MonoBehaviour
             obj.SetActive(false);
         }
 
+        foreach (var obj in underGroundCubes)
+        {
+            obj.SetActive(false);
+        }
+
         showAllIndividualCubes = false;
     }
 
@@ -192,17 +224,20 @@ public class TerrainGenerator : MonoBehaviour
         }
 
         combinedGrassCubes.SetActive(true);
+        combinedUnderGroundCubes.SetActive(true);
         showGiantMesh = true;
     }
 
     public void HideGiantMesh()
-    { 
+    {
         if (!showGiantMesh)
         {
             return;
         }
 
         combinedGrassCubes.SetActive(false);
+        combinedUnderGroundCubes.SetActive(false);
+
         showGiantMesh = false;
     }
 }
