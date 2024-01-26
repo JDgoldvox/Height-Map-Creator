@@ -8,7 +8,7 @@ using UnityEngine.SocialPlatforms.Impl;
 
 public class TerrainGenerator : MonoBehaviour
 {
-    int height = 3;
+    int height = 10;
 
     [HideInInspector] public float frequency = 1.0f;
     [HideInInspector] public float scale = 1.0f;
@@ -21,12 +21,6 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField] private GameObject dirtCube;
     [SerializeField] private GameObject shallowWaterCube;
     [SerializeField] private GameObject deepWaterCube;
-
-    private GameObject combinedGrassCubes;
-    private List<MeshFilter> grassCubeMeshes = new List<MeshFilter>();
-
-    private GameObject combinedUnderGroundCubes;
-    private List<MeshFilter> underGroundCubeMeshes = new List<MeshFilter>();
 
     private bool showAllIndividualCubes = false;
     private bool showGiantMesh = true;
@@ -43,8 +37,6 @@ public class TerrainGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        combinedGrassCubes = new GameObject("combined grass cubes");
-        combinedUnderGroundCubes = new GameObject("combined under ground cubes");
         combinedMeshParent = new GameObject("combined meshes");
 
         CreateHeightMap();
@@ -127,7 +119,7 @@ public class TerrainGenerator : MonoBehaviour
     public void UpdateBlocks(bool combine)
     {
         float noiseNumber = 0;
-
+        
         //loop through all blocks on world
         foreach (var topCube in world.Keys)
         {
@@ -141,19 +133,6 @@ public class TerrainGenerator : MonoBehaviour
             noiseNumber = NoiseFunction.GenerateNoise(adjustedX, adjustedZ);
             topCube.transform.position = new Vector3(topCubePos.x, noiseNumber * scale, topCubePos.z);
 
-            //combine top layer
-            if (combine)
-            {
-                List<GameObject> allTopCubes = new List<GameObject>();
-                //get the list of all top cubes
-                foreach (GameObject cube in world.Keys)
-                {
-                    allTopCubes.Add(cube);
-                }
-
-                CombineMesh(allTopCubes, combinedGrassCubes);
-            }
-
             //Find corrosponding core
             List<GameObject> underGroundCubeList = world[topCube].cubes;
 
@@ -163,145 +142,235 @@ public class TerrainGenerator : MonoBehaviour
                     topCube.transform.position.y - i,
                     topCube.transform.position.z);
             }
+        }
 
-            //combine cores
-
-            if (combine)
+        //combine top layer
+        if (combine)
+        {
+            List<GameObject> allTopCubes = new List<GameObject>();
+            //get the list of all top cubes
+            foreach (GameObject cube in world.Keys)
             {
-                //get the list of all cores cubes
-                List<GameObject> allUnderGroundCubes = new List<GameObject>();
-
-                foreach (UnderGroundCore core in world.Values)
-                {
-                    foreach (GameObject cube in core.cubes)
-                    {
-                        allUnderGroundCubes.Add(cube);
-                    }
-                }
-
-                CombineMesh(allUnderGroundCubes, combinedUnderGroundCubes);
+                allTopCubes.Add(cube);
             }
 
-            ////get the list of all cores cubes
-            //List<GameObject> allUnderGroundCubes = new List<GameObject>();
+            CombineMesh(allTopCubes);
+        }
 
-            //foreach (UnderGroundCore core in world.Values)
-            //{
-            //    CombineMesh(core.cubes, combinedUnderGroundCubes, underGroundCubeMeshes);
-            //}
+        //combine cores
+
+        if (combine)
+        {
+            //get the list of all cores cubes
+            List<GameObject> allUnderGroundCubes = new List<GameObject>();
+
+            foreach (UnderGroundCore core in world.Values)
+            {
+                foreach (GameObject cube in core.cubes)
+                {
+                    allUnderGroundCubes.Add(cube);
+                }
+            }
+
+            CombineMesh(allUnderGroundCubes);
         }
     }
-    void CombineMesh(List<GameObject> originalCubes, GameObject combinedMeshGameObject)
+    void CombineMesh(List<GameObject> originalCubes)
     {
-        //set parent
-        combinedMeshGameObject.transform.parent = combinedMeshParent.transform;
+        ///////////////////////////////////////////////////////////////////////
+        List<List<GameObject>> gameObjectLists = new List<List<GameObject>>();
 
-        List<MeshFilter> meshFilters = new List<MeshFilter> ();
-
-        // Make an array of combine instances
-        var combinedInstance = new CombineInstance[originalCubes.Count];
-
-        // Store material and mesh renderer references outside the loop
-        Material sharedMaterial = originalCubes[0].GetComponent<MeshRenderer>().sharedMaterial;
-        MeshRenderer meshRenderer = combinedMeshGameObject.GetComponent<MeshRenderer>();
-
-        // Set the meshes and transform in the combined instance
-        for (int i = 0; i < originalCubes.Count; i++)
+        //Debug.Log("cube count for combining: " + +originalCubes.Count + "\n");
+        //making sure there is only 8192 cubes
+        if (originalCubes.Count > 2999)
         {
-            MeshFilter meshFilter = originalCubes[i].GetComponent<MeshFilter>();
-            if (meshFilter != null)
+            List<GameObject> currentListToFill = new List<GameObject>();
+            int currentListCount = 0;
+            bool isListFull = false;
+
+            //split all cubes into 8192 list of game objects
+            for (int i = 0; i < originalCubes.Count; i++)
             {
-                combinedInstance[i].mesh = meshFilter.sharedMesh;
-                combinedInstance[i].transform = originalCubes[i].transform.localToWorldMatrix;
-                meshFilters.Add(meshFilter);
+                if (isListFull)
+                {
+                    currentListToFill.Clear();
+                    isListFull = false;
+                    currentListCount = 0;
+                }
+
+                //if our list exists and is full
+                if (currentListCount == 2998) //one less than max //8191
+                {
+                    //add last item to fill list
+                    currentListToFill.Add(originalCubes[i]);
+
+                    Debug.Log("current list cube count: " + currentListToFill.Count + "\n");
+
+                    //remove the list and add it to our list of lists
+                    gameObjectLists.Add(currentListToFill);
+                    isListFull = true;
+                    currentListCount++;
+                    continue;
+                }
+
+                //fill list 
+                currentListCount++;
+                if (originalCubes[i] != null)
+                {
+                    currentListToFill.Add(originalCubes[i]);
+                }
+
+                //add last list
+                if (i == originalCubes.Count - 1)
+                {
+                    Debug.Log("last list cube count: " + currentListToFill.Count + "\n");
+                    currentListToFill.Add(originalCubes[i]);
+
+                    gameObjectLists.Add(currentListToFill);
+                    break;
+                }
             }
+
         }
-
-        // Combine instances into mesh
-        Mesh combinedGrassMesh = new Mesh();
-        combinedGrassMesh.CombineMeshes(combinedInstance);
-
-        // New game object
-        Transform combinedTransform = combinedMeshGameObject.transform;
-        combinedTransform.position = new Vector3(originalCubes[0].transform.position.x, originalCubes[0].transform.position.x, originalCubes[0].transform.position.z);
-        combinedTransform.rotation = originalCubes[0].transform.rotation;
-
-        // Add or update MeshFilter
-        MeshFilter combinedMeshFilter = combinedMeshGameObject.GetComponent<MeshFilter>();
-        if (combinedMeshFilter == null)
+        else //only add 1 item to list
         {
-            combinedMeshFilter = combinedMeshGameObject.AddComponent<MeshFilter>();
+            gameObjectLists.Add(originalCubes);
         }
-        combinedMeshFilter.mesh = combinedGrassMesh;
 
-        // Add or update MeshRenderer
-        if (meshRenderer == null)
+        //now we have lists inside a list, do something with these lists!
+        ////////////////////////////////////////////////////////////////////////
+
+        //create game objects to store these mega-meshes depending on how many lists are in the list
+        List<GameObject> megaMeshGameObject = new List<GameObject>();
+
+        foreach (List<GameObject> list in gameObjectLists)
         {
-            meshRenderer = combinedMeshGameObject.AddComponent<MeshRenderer>();
+            GameObject combinedMeshGameObject = new GameObject("combinedMesh");
+            megaMeshGameObject.Add(combinedMeshGameObject);
         }
-        meshRenderer.material = sharedMaterial;
+        //////////////////////////////////////////////////////////////////////////
+
+        //combine each list of game objects to make a mega mesh
+
+        for (int i = 0; i < gameObjectLists.Count; i++)
+        {
+            List<GameObject> listOfCubes = gameObjectLists[i];
+
+            //set parent
+            megaMeshGameObject[i].transform.parent = combinedMeshParent.transform;
+
+            List<MeshFilter> meshFilters = new List<MeshFilter>();
+
+            // Make an array of combine instances
+            var combinedInstance = new CombineInstance[listOfCubes.Count];
+
+            // Store material and mesh renderer references outside the loop
+            Material sharedMaterial = listOfCubes[0].GetComponent<MeshRenderer>().sharedMaterial;
+            MeshRenderer meshRenderer = megaMeshGameObject[i].GetComponent<MeshRenderer>();
+
+            // Set the meshes and transform in the combined instance
+            for (int j = 0; j < listOfCubes.Count; j++)
+            {
+                MeshFilter meshFilter = listOfCubes[i].GetComponent<MeshFilter>();
+                if (meshFilter != null)
+                {
+                    combinedInstance[j].mesh = meshFilter.sharedMesh;
+                    combinedInstance[j].transform = listOfCubes[j].transform.localToWorldMatrix;
+                    meshFilters.Add(meshFilter);
+                }
+            }
+
+            // Combine instances into mesh
+            Mesh combinedGrassMesh = new Mesh();
+            combinedGrassMesh.CombineMeshes(combinedInstance);
+
+            // New game object
+            Transform combinedTransform = megaMeshGameObject[i].transform;
+            combinedTransform.position = new Vector3(listOfCubes[0].transform.position.x, listOfCubes[0].transform.position.x, listOfCubes[0].transform.position.z);
+            combinedTransform.rotation = listOfCubes[0].transform.rotation;
+
+            // Add or update MeshFilter
+            MeshFilter combinedMeshFilter = megaMeshGameObject[i].GetComponent<MeshFilter>();
+            if (combinedMeshFilter == null)
+            {
+                combinedMeshFilter = megaMeshGameObject[i].AddComponent<MeshFilter>();
+            }
+            combinedMeshFilter.mesh = combinedGrassMesh;
+
+            // Add or update MeshRenderer
+            if (meshRenderer == null)
+            {
+                meshRenderer = megaMeshGameObject[i].AddComponent<MeshRenderer>();
+            }
+            meshRenderer.material = sharedMaterial;
+        }
     }
 
     public void ShowAllIndividualCubes()
     {
-        //if(showAllIndividualCubes) {
-        //    return;
-        //}
+        if (showAllIndividualCubes)
+        {
+            return;
+        }
 
-        //foreach(var obj in grassCubes)
-        //{
-        //    obj.SetActive(true); 
-        //}
+        //enable top
+        foreach (var obj in world.Keys)
+        {
+            obj.SetActive(true);
+        }
 
-        //foreach (var obj in underGroundCubes)
-        //{
-        //    obj.SetActive(true);
-        //}
+        //enable bottom
+        foreach (var core in world.Values)
+        {
+            foreach(GameObject c in core.cubes)
+            c.SetActive(true);
+        }
 
-        //showAllIndividualCubes = true;
+        showAllIndividualCubes = true;
     }
 
     public void HideAllIndividualCubes()
     {
-        //if (!showAllIndividualCubes)
-        //{
-        //    return;
-        //}
+        if (!showAllIndividualCubes)
+        {
+            return;
+        }
 
-        //foreach (var obj in grassCubes)
-        //{
-        //    obj.SetActive(false);
-        //}
+        //disable top
+        foreach (var obj in world.Keys)
+        {
+            obj.SetActive(false);
+        }
 
-        //foreach (var obj in underGroundCubes)
-        //{
-        //    obj.SetActive(false);
-        //}
+        //disable bottom
+        foreach (var core in world.Values)
+        {
+            foreach (GameObject c in core.cubes)
+                c.SetActive(false);
+        }
 
-        //showAllIndividualCubes = false;
+        showAllIndividualCubes = false;
     }
 
     public void ShowGiantMesh()
     {
-        //if (showGiantMesh)
-        //{
-        //    return;
-        //}
+        if (showGiantMesh)
+        {
+            return;
+        }
 
-        //combinedGrassCubes.SetActive(true);
-        //combinedUnderGroundCubes.SetActive(true);
-        //showGiantMesh = true;
+        combinedMeshParent.SetActive(true);
+        showGiantMesh = true;
     }
 
     public void HideGiantMesh()
     {
-        //if (!showGiantMesh)
-        //{
-        //    return;
-        //}
+        if (!showGiantMesh)
+        {
+            return;
+        }
 
-        //combinedGrassCubes.SetActive(false);
-        //combinedUnderGroundCubes.SetActive(false);
+        combinedMeshParent.SetActive(false);
 
         //showGiantMesh = false;
     }
