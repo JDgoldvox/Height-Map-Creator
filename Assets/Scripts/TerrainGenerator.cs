@@ -4,6 +4,8 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SocialPlatforms.Impl;
 
+//8192 
+
 public class TerrainGenerator : MonoBehaviour
 {
     int height = 3;
@@ -31,6 +33,8 @@ public class TerrainGenerator : MonoBehaviour
 
     Dictionary<GameObject, UnderGroundCore> world = new Dictionary<GameObject, UnderGroundCore>();
 
+    private GameObject combinedMeshParent;
+
     private void Awake()
     {
         S_worldGeneratorControls = GetComponent<WorldGeneratorControls>();
@@ -41,6 +45,7 @@ public class TerrainGenerator : MonoBehaviour
     {
         combinedGrassCubes = new GameObject("combined grass cubes");
         combinedUnderGroundCubes = new GameObject("combined under ground cubes");
+        combinedMeshParent = new GameObject("combined meshes");
 
         CreateHeightMap();
     }
@@ -61,6 +66,7 @@ public class TerrainGenerator : MonoBehaviour
     {
         float noiseNumber = 0;
         List<GameObject> grassCubes = new List<GameObject>();
+        GameObject topLayer = new GameObject("top layer");
 
         //Top grass layer
         //loop through all blocks on map and create all top layer cubes
@@ -75,6 +81,7 @@ public class TerrainGenerator : MonoBehaviour
 
                 noiseNumber = NoiseFunction.GenerateNoise(adjustedX, adjustedZ);
                 GameObject newCubeObj = Instantiate(grassCube, new Vector3(x, noiseNumber * scale, z), Quaternion.identity);
+                newCubeObj.transform.parent = topLayer.transform;
                 grassCubes.Add(newCubeObj);
             }
         }
@@ -84,6 +91,7 @@ public class TerrainGenerator : MonoBehaviour
 
         List<GameObject> underGroundCubes = new List<GameObject>();
         List<UnderGroundCore> cores = new List<UnderGroundCore>();
+        GameObject bottomLayer = new GameObject("bottom layer");
 
         foreach (GameObject obj in grassCubes)
         {
@@ -95,6 +103,7 @@ public class TerrainGenerator : MonoBehaviour
                 //create underground Cube
                 var objPos = obj.transform.position;
                 GameObject newCubeObj = Instantiate(dirtCube, new Vector3(objPos.x, objPos.y - (float)y, objPos.z), Quaternion.identity);
+                newCubeObj.transform.parent = bottomLayer.transform;
 
                 //add to cube array so it we can collect them
                 tempUnderGroundCubeList.Add(newCubeObj);
@@ -108,7 +117,7 @@ public class TerrainGenerator : MonoBehaviour
         }
 
         //map top layer to core cubes in world dic
-        for(int i = 0; i < grassCubes.Count; i++)
+        for (int i = 0; i < grassCubes.Count; i++)
         {
             //map top layer to underground layers
             world[grassCubes[i]] = cores[i];
@@ -137,18 +146,18 @@ public class TerrainGenerator : MonoBehaviour
             {
                 List<GameObject> allTopCubes = new List<GameObject>();
                 //get the list of all top cubes
-                foreach(GameObject cube in world.Keys)
+                foreach (GameObject cube in world.Keys)
                 {
                     allTopCubes.Add(cube);
                 }
 
-                CombineMesh(allTopCubes, combinedGrassCubes, grassCubeMeshes);
+                CombineMesh(allTopCubes, combinedGrassCubes);
             }
 
             //Find corrosponding core
             List<GameObject> underGroundCubeList = world[topCube].cubes;
 
-            for(int i = 0; i < underGroundCubeList.Count; i++)
+            for (int i = 0; i < underGroundCubeList.Count; i++)
             {
                 underGroundCubeList[i].transform.position = new Vector3(topCube.transform.position.x,
                     topCube.transform.position.y - i,
@@ -164,8 +173,13 @@ public class TerrainGenerator : MonoBehaviour
 
                 foreach (UnderGroundCore core in world.Values)
                 {
-                    CombineMesh(core.cubes, combinedUnderGroundCubes, underGroundCubeMeshes);
+                    foreach (GameObject cube in core.cubes)
+                    {
+                        allUnderGroundCubes.Add(cube);
+                    }
                 }
+
+                CombineMesh(allUnderGroundCubes, combinedUnderGroundCubes);
             }
 
             ////get the list of all cores cubes
@@ -173,16 +187,16 @@ public class TerrainGenerator : MonoBehaviour
 
             //foreach (UnderGroundCore core in world.Values)
             //{
-            //    foreach (GameObject cube in core.cubes)
-            //    {
-            //        CombineMesh(allUnderGroundCubes, combinedUnderGroundCubes, underGroundCubeMeshes);
-            //    }
+            //    CombineMesh(core.cubes, combinedUnderGroundCubes, underGroundCubeMeshes);
             //}
         }
     }
-    void CombineMesh(List<GameObject> originalCubes, GameObject combinedMeshGameObject, List<MeshFilter> meshFilters)
+    void CombineMesh(List<GameObject> originalCubes, GameObject combinedMeshGameObject)
     {
-        meshFilters.Clear();
+        //set parent
+        combinedMeshGameObject.transform.parent = combinedMeshParent.transform;
+
+        List<MeshFilter> meshFilters = new List<MeshFilter> ();
 
         // Make an array of combine instances
         var combinedInstance = new CombineInstance[originalCubes.Count];
@@ -291,4 +305,4 @@ public class TerrainGenerator : MonoBehaviour
 
         //showGiantMesh = false;
     }
- }
+}

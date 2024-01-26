@@ -19,6 +19,9 @@ public class PlayerInput : MonoBehaviour
 
     private bool freeze = false;
 
+    [SerializeField] private GameObject pauseBar1;
+    [SerializeField] private GameObject pauseBar2;
+
     void Awake()
     {
         controls = new PlayerControls();
@@ -53,8 +56,14 @@ public class PlayerInput : MonoBehaviour
 
         if (freeze)
         {
+            pauseBar1.SetActive(true);
+            pauseBar2.SetActive(true);
+
             return;
         }
+
+        pauseBar1.SetActive(false);
+        pauseBar2.SetActive(false);
 
         //camera
         Vector2 lookInput = look.ReadValue<Vector2>() * mouseSensitivity;
