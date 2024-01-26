@@ -26,12 +26,12 @@ public struct RangeWithMinMax
     }
 }
 
-public class UnderGroundCore
+public struct UnderGroundCore
 {
     public List<GameObject> cubes;
 
-    public UnderGroundCore()
+    public UnderGroundCore(List<GameObject> inputCubeList)
     {
-        cubes = new List<GameObject>();
+        cubes = inputCubeList;
     }
 }
