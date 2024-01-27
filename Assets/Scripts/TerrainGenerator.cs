@@ -1,10 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
-
-//8192 
 
 public class TerrainGenerator : MonoBehaviour
 {
@@ -42,12 +38,6 @@ public class TerrainGenerator : MonoBehaviour
         CreateHeightMap();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     void CreateHeightMap()
     {
         //Instantiate cubes
@@ -66,10 +56,8 @@ public class TerrainGenerator : MonoBehaviour
         {
             for (int z = 0; z < worldSize.z; z++)
             {
-                float adjustedX = x / worldSize.x;
-                float adjustedZ = z / worldSize.z;
-                adjustedX *= frequency;
-                adjustedZ *= frequency;
+                float adjustedX = (x / worldSize.x) * frequency;
+                float adjustedZ = (z / worldSize.z) * frequency;
 
                 noiseNumber = NoiseFunction.GenerateNoise(adjustedX, adjustedZ);
                 GameObject newCubeObj = Instantiate(grassCube, new Vector3(x, noiseNumber * scale, z), Quaternion.identity);
@@ -80,7 +68,6 @@ public class TerrainGenerator : MonoBehaviour
 
         //underground layer
         //loop through all blocks on map
-
         List<GameObject> underGroundCubes = new List<GameObject>();
         List<UnderGroundCore> cores = new List<UnderGroundCore>();
         GameObject bottomLayer = new GameObject("bottom layer");
@@ -94,7 +81,7 @@ public class TerrainGenerator : MonoBehaviour
             {
                 //create underground Cube
                 var objPos = obj.transform.position;
-                GameObject newCubeObj = Instantiate(dirtCube, new Vector3(objPos.x, objPos.y - (float)y, objPos.z), Quaternion.identity);
+                GameObject newCubeObj = Instantiate(dirtCube, new Vector3(objPos.x, objPos.y - 1 - (float)y, objPos.z), Quaternion.identity);
                 newCubeObj.transform.parent = bottomLayer.transform;
 
                 //add to cube array so it we can collect them
@@ -123,23 +110,22 @@ public class TerrainGenerator : MonoBehaviour
         //loop through all blocks on world
         foreach (var topCube in world.Keys)
         {
+            //update all surface cube
             Vector3 topCubePos = topCube.transform.position;
 
-            float adjustedX = topCubePos.x / worldSize.x;
-            float adjustedZ = topCubePos.z / worldSize.z;
-            adjustedX *= frequency;
-            adjustedZ *= frequency;
+            float adjustedX = (topCubePos.x / worldSize.x) * frequency;
+            float adjustedZ = (topCubePos.z / worldSize.z) * frequency;
 
             noiseNumber = NoiseFunction.GenerateNoise(adjustedX, adjustedZ);
             topCube.transform.position = new Vector3(topCubePos.x, noiseNumber * scale, topCubePos.z);
 
-            //Find corrosponding core
+            //Find corrosponding core cubes
             List<GameObject> underGroundCubeList = world[topCube].cubes;
 
             for (int i = 0; i < underGroundCubeList.Count; i++)
             {
                 underGroundCubeList[i].transform.position = new Vector3(topCube.transform.position.x,
-                    topCube.transform.position.y - i,
+                    topCube.transform.position.y - i - 1,
                     topCube.transform.position.z);
             }
         }
@@ -155,12 +141,9 @@ public class TerrainGenerator : MonoBehaviour
             }
 
             CombineMesh(allTopCubes);
-        }
 
-        //combine cores
+            //combine underground layers
 
-        if (combine)
-        {
             //get the list of all cores cubes
             List<GameObject> allUnderGroundCubes = new List<GameObject>();
 
@@ -177,18 +160,16 @@ public class TerrainGenerator : MonoBehaviour
     }
     void CombineMesh(List<GameObject> originalCubes)
     {
-        ///////////////////////////////////////////////////////////////////////
         List<List<GameObject>> gameObjectLists = new List<List<GameObject>>();
 
-        //Debug.Log("cube count for combining: " + +originalCubes.Count + "\n");
-        //making sure there is only 8192 cubes
+        //making sure there is only 8192 cubes per mesh object
         if (originalCubes.Count > 2999)
         {
             List<GameObject> currentListToFill = new List<GameObject>();
             int currentListCount = 0;
             bool isListFull = false;
 
-            //split all cubes into 8192 list of game objects
+            //split all cubes into 2999 list of game objects
             for (int i = 0; i < originalCubes.Count; i++)
             {
                 if (isListFull)
@@ -199,12 +180,10 @@ public class TerrainGenerator : MonoBehaviour
                 }
 
                 //if our list exists and is full
-                if (currentListCount == 2998) //one less than max //8191
+                if (currentListCount == 2998) //one less than max //2998
                 {
                     //add last item to fill list
                     currentListToFill.Add(originalCubes[i]);
-
-                    Debug.Log("current list cube count: " + currentListToFill.Count + "\n");
 
                     //remove the list and add it to our list of lists
                     gameObjectLists.Add(currentListToFill);
@@ -251,7 +230,6 @@ public class TerrainGenerator : MonoBehaviour
         //////////////////////////////////////////////////////////////////////////
 
         //combine each list of game objects to make a mega mesh
-
         for (int i = 0; i < gameObjectLists.Count; i++)
         {
             List<GameObject> listOfCubes = gameObjectLists[i];
@@ -271,7 +249,7 @@ public class TerrainGenerator : MonoBehaviour
             // Set the meshes and transform in the combined instance
             for (int j = 0; j < listOfCubes.Count; j++)
             {
-                MeshFilter meshFilter = listOfCubes[i].GetComponent<MeshFilter>();
+                MeshFilter meshFilter = listOfCubes[j].GetComponent<MeshFilter>();
                 if (meshFilter != null)
                 {
                     combinedInstance[j].mesh = meshFilter.sharedMesh;
@@ -304,6 +282,8 @@ public class TerrainGenerator : MonoBehaviour
             }
             meshRenderer.material = sharedMaterial;
         }
+
+
     }
 
     public void ShowAllIndividualCubes()

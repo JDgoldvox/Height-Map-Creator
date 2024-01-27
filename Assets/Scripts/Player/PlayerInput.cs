@@ -36,7 +36,6 @@ public class PlayerInput : MonoBehaviour
 
         look = controls.Player.Look;
         look.Enable();
-
     }
 
     private void OnDisable()
