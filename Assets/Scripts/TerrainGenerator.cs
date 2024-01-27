@@ -5,10 +5,13 @@ using UnityEngine;
 
 public class TerrainGenerator : MonoBehaviour
 {
-    int height = 10;
+    [SerializeField] private int underGroundHeight = 10;
+    public float waterHeight = 0;
 
-    [HideInInspector] public float frequency = 1.0f;
-    [HideInInspector] public float scale = 1.0f;
+    [HideInInspector]  public float landFrequency = 1.0f;
+    [HideInInspector]  public float landScale = 1.0f;
+    [HideInInspector]  public float waterFrequency = 1.0f;
+    [HideInInspector]  public float waterScale = 1.0f;
 
     private WorldGeneratorControls S_worldGeneratorControls;
 
@@ -23,13 +26,17 @@ public class TerrainGenerator : MonoBehaviour
     private bool showGiantMesh = true;
 
     Dictionary<GameObject, UnderGroundCore> world = new Dictionary<GameObject, UnderGroundCore>();
+    List<GameObject> waterCubes = new List<GameObject>();
+
     List<GameObject> topLayerMegaMeshGameObject = new List<GameObject>();
     List<GameObject> bottomLayerMegaMeshGameObject = new List<GameObject>();
+    List<GameObject> waterLayerMegaMeshGameObject = new List<GameObject>();
 
     private GameObject combinedMeshParent;
 
     GameObject bottomLayer;
     GameObject topLayer;
+    GameObject waterLayer;
 
     private void Awake()
     {
@@ -41,6 +48,7 @@ public class TerrainGenerator : MonoBehaviour
     {
         bottomLayer = new GameObject("bottom layer");
         topLayer = new GameObject("top layer");
+        waterLayer = new GameObject("water layer");
 
         combinedMeshParent = new GameObject("combined meshes");
 
@@ -59,21 +67,28 @@ public class TerrainGenerator : MonoBehaviour
     {
         float noiseNumber = 0;
         List<GameObject> grassCubes = new List<GameObject>();
-        
+        float highestTopLayerCube = float.MinValue, lowestBottomLayerCube = float.MaxValue;
 
-        //Top grass layer
+        //Top grass layer and water
         //loop through all blocks on map and create all top layer cubes
         for (int x = 0; x < worldSize.x; x++)
         {
             for (int z = 0; z < worldSize.z; z++)
             {
-                float adjustedX = (x / worldSize.x) * frequency;
-                float adjustedZ = (z / worldSize.z) * frequency;
+                float adjustedX = (x / worldSize.x) * landFrequency;
+                float adjustedZ = (z / worldSize.z) * landFrequency;
 
+                //grass
                 noiseNumber = NoiseFunction.GenerateNoise(adjustedX, adjustedZ);
-                GameObject newCubeObj = Instantiate(grassCube, new Vector3(x, noiseNumber * scale, z), Quaternion.identity);
+                GameObject newCubeObj = Instantiate(grassCube, new Vector3(x, noiseNumber * landScale, z), Quaternion.identity);
                 newCubeObj.transform.parent = topLayer.transform;
                 grassCubes.Add(newCubeObj);
+
+                //FIND HIGHEST BLOCK
+                if(noiseNumber > highestTopLayerCube)
+                {
+                    highestTopLayerCube = noiseNumber;
+                }
             }
         }
 
@@ -87,7 +102,7 @@ public class TerrainGenerator : MonoBehaviour
             //place dirt blocks below for some height below one another
             List<GameObject> tempUnderGroundCubeList = new List<GameObject>();
 
-            for (int y = 0; y < height; y++)
+            for (int y = 0; y < underGroundHeight; y++)
             {
                 //create underground Cube
                 var objPos = obj.transform.position;
@@ -96,6 +111,12 @@ public class TerrainGenerator : MonoBehaviour
 
                 //add to cube array so it we can collect them
                 tempUnderGroundCubeList.Add(newCubeObj);
+
+                //FIND LOWEST BLOCK
+                if (newCubeObj.transform.position.y < lowestBottomLayerCube)
+                {
+                    lowestBottomLayerCube = newCubeObj.transform.position.y;
+                }
             }
 
             //create new core and add the list in
@@ -111,6 +132,23 @@ public class TerrainGenerator : MonoBehaviour
             //map top layer to underground layers
             world[grassCubes[i]] = cores[i];
         }
+
+        //WATER LAYER
+        for (int x = 0; x < worldSize.x; x++)
+        {
+            for (int z = 0; z < worldSize.z; z++)
+            {
+                float adjustedX = (x / worldSize.x) * waterFrequency;
+                float adjustedZ = (z / worldSize.z) * waterFrequency;
+
+                //water
+                noiseNumber = NoiseFunction.GenerateNoise(adjustedX, adjustedZ);
+                GameObject newCubeObj2 = Instantiate(deepWaterCube, new Vector3(x, noiseNumber * waterScale + waterHeight, z), Quaternion.identity);
+                newCubeObj2.transform.parent = waterLayer.transform;
+                waterCubes.Add(newCubeObj2);
+            }
+        }
+
     }
 
     public void UpdateBlocks(bool combine)
@@ -123,11 +161,11 @@ public class TerrainGenerator : MonoBehaviour
             //update all surface cube
             Vector3 topCubePos = topCube.transform.position;
 
-            float adjustedX = (topCubePos.x / worldSize.x) * frequency;
-            float adjustedZ = (topCubePos.z / worldSize.z) * frequency;
+            float adjustedX = (topCubePos.x / worldSize.x) * landFrequency;
+            float adjustedZ = (topCubePos.z / worldSize.z) * landFrequency;
 
             noiseNumber = NoiseFunction.GenerateNoise(adjustedX, adjustedZ);
-            topCube.transform.position = new Vector3(topCubePos.x, noiseNumber * scale, topCubePos.z);
+            topCube.transform.position = new Vector3(topCubePos.x, noiseNumber * landScale, topCubePos.z);
 
             //Find corrosponding core cubes
             List<GameObject> underGroundCubeList = world[topCube].cubes;
@@ -138,6 +176,18 @@ public class TerrainGenerator : MonoBehaviour
                     topCube.transform.position.y - i - 1,
                     topCube.transform.position.z);
             }
+        }
+
+        //update all water blocks
+        foreach (GameObject waterCube in waterCubes)
+        {
+            Vector3 waterLayerPos = waterCube.transform.position;
+
+            float adjustedX = (waterLayerPos.x / worldSize.x) * waterFrequency;
+            float adjustedZ = (waterLayerPos.z / worldSize.z) * waterFrequency;
+
+            noiseNumber = NoiseFunction.GenerateNoise(adjustedX, adjustedZ);
+            waterCube.transform.position = new Vector3(waterLayerPos.x, noiseNumber * waterScale + waterHeight, waterLayerPos.z);
         }
 
         //combine top layer
@@ -166,13 +216,15 @@ public class TerrainGenerator : MonoBehaviour
             }
 
             CombineMesh(allUnderGroundCubes, bottomLayerMegaMeshGameObject);
+
+            //combine water layer
+            CombineMesh(waterCubes, waterLayerMegaMeshGameObject);
         }
     }
     void CombineMesh(List<GameObject> originalCubes, List<GameObject> megaMeshGameObject)
     {
         List<List<GameObject>> gameObjectLists = new List<List<GameObject>>();
         
-
         //making sure there is only 8192 cubes per mesh object
         if (originalCubes.Count > 2500)
         {
