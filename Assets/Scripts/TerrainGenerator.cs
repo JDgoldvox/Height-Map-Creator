@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
 
 public class TerrainGenerator : MonoBehaviour
@@ -161,55 +162,28 @@ public class TerrainGenerator : MonoBehaviour
     void CombineMesh(List<GameObject> originalCubes)
     {
         List<List<GameObject>> gameObjectLists = new List<List<GameObject>>();
+        
 
         //making sure there is only 8192 cubes per mesh object
-        if (originalCubes.Count > 2999)
+        if (originalCubes.Count > 2500)
         {
-            List<GameObject> currentListToFill = new List<GameObject>();
-            int currentListCount = 0;
-            bool isListFull = false;
+            List<GameObject> currentList = new List<GameObject>();
 
-            //split all cubes into 2999 list of game objects
+            //split original cubes into 2999 max lists and add them to gameObjectLists
             for (int i = 0; i < originalCubes.Count; i++)
             {
-                if (isListFull)
+                //add cube
+                currentList.Add(originalCubes[i]);
+
+                //if its the last cube added or if max cube count reached
+                if (currentList.Count == 2500 || i == originalCubes.Count - 1)
                 {
-                    currentListToFill.Clear();
-                    isListFull = false;
-                    currentListCount = 0;
-                }
-
-                //if our list exists and is full
-                if (currentListCount == 2998) //one less than max //2998
-                {
-                    //add last item to fill list
-                    currentListToFill.Add(originalCubes[i]);
-
-                    //remove the list and add it to our list of lists
-                    gameObjectLists.Add(currentListToFill);
-                    isListFull = true;
-                    currentListCount++;
-                    continue;
-                }
-
-                //fill list 
-                currentListCount++;
-                if (originalCubes[i] != null)
-                {
-                    currentListToFill.Add(originalCubes[i]);
-                }
-
-                //add last list
-                if (i == originalCubes.Count - 1)
-                {
-                    Debug.Log("last list cube count: " + currentListToFill.Count + "\n");
-                    currentListToFill.Add(originalCubes[i]);
-
-                    gameObjectLists.Add(currentListToFill);
-                    break;
+                    //Debug.Log("list: " + currentList.Count);
+                    //Maxed reached - add and reset
+                    gameObjectLists.Add(currentList);
+                    currentList = new List<GameObject>();
                 }
             }
-
         }
         else //only add 1 item to list
         {
@@ -233,9 +207,10 @@ public class TerrainGenerator : MonoBehaviour
         for (int i = 0; i < gameObjectLists.Count; i++)
         {
             List<GameObject> listOfCubes = gameObjectLists[i];
+            GameObject firstCube = listOfCubes[0];
 
             //set parent
-            megaMeshGameObject[i].transform.parent = combinedMeshParent.transform;
+            //megaMeshGameObject[i].transform.parent = combinedMeshParent.transform;
 
             List<MeshFilter> meshFilters = new List<MeshFilter>();
 
@@ -243,7 +218,7 @@ public class TerrainGenerator : MonoBehaviour
             var combinedInstance = new CombineInstance[listOfCubes.Count];
 
             // Store material and mesh renderer references outside the loop
-            Material sharedMaterial = listOfCubes[0].GetComponent<MeshRenderer>().sharedMaterial;
+            Material sharedMaterial = firstCube.GetComponent<MeshRenderer>().sharedMaterial;
             MeshRenderer meshRenderer = megaMeshGameObject[i].GetComponent<MeshRenderer>();
 
             // Set the meshes and transform in the combined instance
@@ -264,7 +239,7 @@ public class TerrainGenerator : MonoBehaviour
 
             // New game object
             Transform combinedTransform = megaMeshGameObject[i].transform;
-            combinedTransform.position = new Vector3(listOfCubes[0].transform.position.x, listOfCubes[0].transform.position.x, listOfCubes[0].transform.position.z);
+            combinedTransform.position = new Vector3(0,0,0);
             combinedTransform.rotation = listOfCubes[0].transform.rotation;
 
             // Add or update MeshFilter
@@ -282,8 +257,6 @@ public class TerrainGenerator : MonoBehaviour
             }
             meshRenderer.material = sharedMaterial;
         }
-
-
     }
 
     public void ShowAllIndividualCubes()
