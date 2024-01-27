@@ -52,8 +52,6 @@ public class WorldGeneratorControls : MonoBehaviour
 
         scaleSlider.minValue = scaleRange.min;
         scaleSlider.maxValue = scaleRange.max;
-
-        S_terrainGenerator.UpdateBlocks(true);
     }
 
     public void AdjustFrequency()
@@ -94,7 +92,7 @@ public class WorldGeneratorControls : MonoBehaviour
 
             Debug.Log("slider dropped!");
 
-            //S_terrainGenerator.HideAllIndividualCubes();
+            S_terrainGenerator.HideAllIndividualCubes();
             S_terrainGenerator.ShowGiantMesh();
         }
     }

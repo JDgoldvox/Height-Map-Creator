@@ -19,12 +19,17 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField] private GameObject shallowWaterCube;
     [SerializeField] private GameObject deepWaterCube;
 
-    private bool showAllIndividualCubes = false;
+    private bool showAllIndividualCubes = true;
     private bool showGiantMesh = true;
 
     Dictionary<GameObject, UnderGroundCore> world = new Dictionary<GameObject, UnderGroundCore>();
+    List<GameObject> topLayerMegaMeshGameObject = new List<GameObject>();
+    List<GameObject> bottomLayerMegaMeshGameObject = new List<GameObject>();
 
     private GameObject combinedMeshParent;
+
+    GameObject bottomLayer;
+    GameObject topLayer;
 
     private void Awake()
     {
@@ -34,22 +39,27 @@ public class TerrainGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        bottomLayer = new GameObject("bottom layer");
+        topLayer = new GameObject("top layer");
+
         combinedMeshParent = new GameObject("combined meshes");
 
         CreateHeightMap();
+        HideAllIndividualCubes();
     }
 
     void CreateHeightMap()
     {
         //Instantiate cubes
         InstantiateCubes();
+        UpdateBlocks(true);
     }
 
     void InstantiateCubes()
     {
         float noiseNumber = 0;
         List<GameObject> grassCubes = new List<GameObject>();
-        GameObject topLayer = new GameObject("top layer");
+        
 
         //Top grass layer
         //loop through all blocks on map and create all top layer cubes
@@ -71,8 +81,7 @@ public class TerrainGenerator : MonoBehaviour
         //loop through all blocks on map
         List<GameObject> underGroundCubes = new List<GameObject>();
         List<UnderGroundCore> cores = new List<UnderGroundCore>();
-        GameObject bottomLayer = new GameObject("bottom layer");
-
+        
         foreach (GameObject obj in grassCubes)
         {
             //place dirt blocks below for some height below one another
@@ -141,7 +150,7 @@ public class TerrainGenerator : MonoBehaviour
                 allTopCubes.Add(cube);
             }
 
-            CombineMesh(allTopCubes);
+            CombineMesh(allTopCubes, topLayerMegaMeshGameObject);
 
             //combine underground layers
 
@@ -156,10 +165,10 @@ public class TerrainGenerator : MonoBehaviour
                 }
             }
 
-            CombineMesh(allUnderGroundCubes);
+            CombineMesh(allUnderGroundCubes, bottomLayerMegaMeshGameObject);
         }
     }
-    void CombineMesh(List<GameObject> originalCubes)
+    void CombineMesh(List<GameObject> originalCubes, List<GameObject> megaMeshGameObject)
     {
         List<List<GameObject>> gameObjectLists = new List<List<GameObject>>();
         
@@ -194,11 +203,20 @@ public class TerrainGenerator : MonoBehaviour
         ////////////////////////////////////////////////////////////////////////
 
         //create game objects to store these mega-meshes depending on how many lists are in the list
-        List<GameObject> megaMeshGameObject = new List<GameObject>();
+        //remove previous items
+        if(megaMeshGameObject != null)
+        {
+            foreach(GameObject megaMesh in megaMeshGameObject)
+            {
+                Destroy(megaMesh);
+            }
+        }
+        megaMeshGameObject.Clear();
 
         foreach (List<GameObject> list in gameObjectLists)
         {
             GameObject combinedMeshGameObject = new GameObject("combinedMesh");
+            combinedMeshGameObject.SetActive(true); 
             megaMeshGameObject.Add(combinedMeshGameObject);
         }
         //////////////////////////////////////////////////////////////////////////
@@ -210,7 +228,7 @@ public class TerrainGenerator : MonoBehaviour
             GameObject firstCube = listOfCubes[0];
 
             //set parent
-            //megaMeshGameObject[i].transform.parent = combinedMeshParent.transform;
+            megaMeshGameObject[i].transform.parent = combinedMeshParent.transform;
 
             List<MeshFilter> meshFilters = new List<MeshFilter>();
 
@@ -267,17 +285,10 @@ public class TerrainGenerator : MonoBehaviour
         }
 
         //enable top
-        foreach (var obj in world.Keys)
-        {
-            obj.SetActive(true);
-        }
+        topLayer.SetActive(true);
 
         //enable bottom
-        foreach (var core in world.Values)
-        {
-            foreach(GameObject c in core.cubes)
-            c.SetActive(true);
-        }
+        bottomLayer.SetActive(true);
 
         showAllIndividualCubes = true;
     }
@@ -290,17 +301,10 @@ public class TerrainGenerator : MonoBehaviour
         }
 
         //disable top
-        foreach (var obj in world.Keys)
-        {
-            obj.SetActive(false);
-        }
+        topLayer.SetActive(false);
 
         //disable bottom
-        foreach (var core in world.Values)
-        {
-            foreach (GameObject c in core.cubes)
-                c.SetActive(false);
-        }
+        bottomLayer.SetActive(false);
 
         showAllIndividualCubes = false;
     }
@@ -325,6 +329,6 @@ public class TerrainGenerator : MonoBehaviour
 
         combinedMeshParent.SetActive(false);
 
-        //showGiantMesh = false;
+        showGiantMesh = false;
     }
 }
