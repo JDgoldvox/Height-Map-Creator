@@ -11,9 +11,11 @@ public class WorldGeneratorControls : MonoBehaviour
     //land
     [SerializeField] private Slider landFrequencySlider;
     [SerializeField] private Slider landScaleSlider;
+    [SerializeField] private Slider landOctavesSlider;
 
     [SerializeField] private TMP_Text landFrequencyText;
     [SerializeField] private TMP_Text landScaleText;
+    [SerializeField] private TMP_Text landOctavesText;
 
     //water
     [SerializeField] private Slider waterFrequencySlider;
@@ -25,11 +27,15 @@ public class WorldGeneratorControls : MonoBehaviour
     [SerializeField] private TMP_Text waterHeightText;
 
     //ranges
+    [SerializeField] private RangeWithMinMax octaveRange;
     [SerializeField] private RangeWithMinMax frequencyRange;
     [SerializeField] private RangeWithMinMax scaleRange;
     [SerializeField] private RangeWithMinMax heightRange;
 
     //land
+    private float landOctavesOldValue = 0;
+    private float landOctavesNewValue = 0;
+
     private float landFrequencyOldValue = 0f;
     private float landFrequencyNewValue = 0f;
 
@@ -47,10 +53,10 @@ public class WorldGeneratorControls : MonoBehaviour
     private float waterHeightNewValue = 0f;
     private float waterHeightOldValue = 0f;
 
-
     TerrainGenerator S_terrainGenerator;
 
     private bool isSliderBeingDragged = false;
+    private bool updateOnlyWater = false;
 
     private void Awake()
     {
@@ -66,18 +72,30 @@ public class WorldGeneratorControls : MonoBehaviour
     {
         IsMouseDragging();
 
-        UpdateBlocksWhenSliderDropped(ref landFrequencyOldValue, ref landFrequencyNewValue);
-        UpdateBlocksWhenSliderDropped(ref landScaleOldValue, ref landScaleNewValue);
+        //land
+        UpdateBlocksWhenSliderDropped(ref landOctavesOldValue, ref landOctavesNewValue, ref updateOnlyWater);
+        UpdateBlocksWhenSliderDropped(ref landFrequencyOldValue, ref landFrequencyNewValue, ref updateOnlyWater);
+        UpdateBlocksWhenSliderDropped(ref landScaleOldValue, ref landScaleNewValue, ref updateOnlyWater);
+        
+        //water
+        UpdateBlocksWhenSliderDropped(ref waterFrequencyOldValue, ref waterFrequencyNewValue, ref updateOnlyWater);
+        UpdateBlocksWhenSliderDropped(ref waterScaleOldValue, ref waterScaleNewValue, ref updateOnlyWater);
+        UpdateBlocksWhenSliderDropped(ref waterHeightOldValue, ref waterHeightNewValue, ref updateOnlyWater);
     }
 
     private void MaxMinSliderValues()
     {
+        //land
+        landOctavesSlider.minValue = octaveRange.min;
+        landOctavesSlider.maxValue = octaveRange.max;
+
         landFrequencySlider.minValue = frequencyRange.min;
         landFrequencySlider.maxValue = frequencyRange.max;
 
         landScaleSlider.minValue = scaleRange.min;
         landScaleSlider.maxValue = scaleRange.max;
 
+        //water
         waterFrequencySlider.minValue = frequencyRange.min;
         waterFrequencySlider.maxValue = frequencyRange.max;
 
@@ -88,6 +106,19 @@ public class WorldGeneratorControls : MonoBehaviour
         waterHeightSlider.maxValue = heightRange.max;
     }
 
+    public void AdjustLandOctaves()
+    {
+        AdjustmentStart();
+
+        landOctavesOldValue = S_terrainGenerator.landOctaves;
+        landOctavesNewValue = landOctavesSlider.value;
+
+        S_terrainGenerator.landOctaves = landOctavesSlider.value;
+        landOctavesText.text = "Land Octaves: " + landOctavesSlider.value;
+
+        S_terrainGenerator.UpdateBlocks(false, false);
+    }
+
     public void AdjustLandFrequency()
     {
         AdjustmentStart();
@@ -96,9 +127,9 @@ public class WorldGeneratorControls : MonoBehaviour
         landFrequencyNewValue = landFrequencySlider.value;
 
         S_terrainGenerator.landFrequency = landFrequencySlider.value;
-        landFrequencyText.text = "land Frequency: " + landFrequencySlider.value;
+        landFrequencyText.text = "Land Frequency: " + landFrequencySlider.value;
 
-        S_terrainGenerator.UpdateBlocks(false);
+        S_terrainGenerator.UpdateBlocks(false, false);
     }
 
     public void AdjustLandScale()
@@ -109,62 +140,78 @@ public class WorldGeneratorControls : MonoBehaviour
         landScaleNewValue = landScaleSlider.value;
 
         S_terrainGenerator.landScale = landScaleSlider.value;
-        landScaleText.text = "land Scale: " + landScaleSlider.value;
+        landScaleText.text = "Land Scale: " + landScaleSlider.value;
 
-        S_terrainGenerator.UpdateBlocks(false);
+        S_terrainGenerator.UpdateBlocks(false, false);
     }
 
     public void AdjustWaterFrequency()
     {
         AdjustmentStart();
+        updateOnlyWater = true;
 
         waterFrequencyOldValue = S_terrainGenerator.waterFrequency;
         waterFrequencyNewValue = waterFrequencySlider.value;
 
         S_terrainGenerator.waterFrequency = waterFrequencySlider.value;
-        waterFrequencyText.text = "land Frequency: " + waterFrequencySlider.value;
+        waterFrequencyText.text = "Water Frequency: " + waterFrequencySlider.value;
 
-        S_terrainGenerator.UpdateBlocks(false);
+        S_terrainGenerator.UpdateBlocks(false, true);
     }
 
     public void AdjustWaterScale()
     {
         AdjustmentStart();
+        updateOnlyWater = true;
 
         waterScaleOldValue = S_terrainGenerator.waterScale;
         waterScaleNewValue = waterScaleSlider.value;
 
         S_terrainGenerator.waterScale = waterScaleSlider.value;
-        waterScaleText.text = "land Scale: " + waterScaleSlider.value;
+        waterScaleText.text = "Water Scale: " + waterScaleSlider.value;
 
-        S_terrainGenerator.UpdateBlocks(false);
+        S_terrainGenerator.UpdateBlocks(false, true);
     }
 
     public void AdjustWaterHeight()
     {
         AdjustmentStart();
+        updateOnlyWater = true;
 
         waterHeightOldValue = S_terrainGenerator.waterHeight;
         waterHeightNewValue = waterHeightSlider.value;
 
         S_terrainGenerator.waterHeight = waterHeightSlider.value;
-        waterHeightText.text = "water Height: " + waterHeightSlider.value;
+        waterHeightText.text = "Water Height: " + waterHeightSlider.value;
 
-        S_terrainGenerator.UpdateBlocks(false);
+        S_terrainGenerator.UpdateBlocks(false, true);
     }
 
-    void UpdateBlocksWhenSliderDropped(ref float oldValue, ref float newValue)
+    void UpdateBlocksWhenSliderDropped(ref float oldValue, ref float newValue, ref bool updateOnlyWater)
     {
         //when slider is dropped, create one big mesh
         if(newValue != oldValue && !isSliderBeingDragged)
         {
-            S_terrainGenerator.UpdateBlocks(true);
+            if (updateOnlyWater)
+            {
+                S_terrainGenerator.UpdateBlocks(true, true);
+                updateOnlyWater = false;
+            }
+            else
+            {
+                S_terrainGenerator.UpdateBlocks(true, false);
+            }
+            
             oldValue = newValue;
-
-            Debug.Log("slider dropped!");
 
             AdjustmentEnd();
         }
+    }
+
+    public void EnableWaves()
+    {
+        //turn it to opposite
+        S_terrainGenerator.enableWaves = !S_terrainGenerator.enableWaves;
     }
 
     private void IsMouseDragging()
