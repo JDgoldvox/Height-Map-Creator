@@ -3407,8 +3407,8 @@ MonoBehaviour:
   waterFrequency: 1
   waterScale: 1
   worldSize:
-    x: 30
-    z: 30
+    x: 100
+    z: 100
   grassCube: {fileID: 8933353079184782786, guid: 4d80cb7bb0192ad40b040d09d8e6863c, type: 3}
   dirtCube: {fileID: 8933353079184782786, guid: ec0b98f98eadcbf499074b21f105c8c3, type: 3}
   shallowWaterCube: {fileID: 8933353079184782786, guid: 26567bf87f119c24bbe78f3d01958cf0, type: 3}
@@ -3445,10 +3445,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   landFrequencySlider: {fileID: 1466039603}
   landScaleSlider: {fileID: 1409980689}
-  landOctavesSlider: {fileID: 0}
+  landOctavesSlider: {fileID: 2140397561}
   landFrequencyText: {fileID: 746758711}
   landScaleText: {fileID: 446424575}
-  landOctavesText: {fileID: 0}
+  landOctavesText: {fileID: 1027702843}
   waterFrequencySlider: {fileID: 2114484789}
   waterScaleSlider: {fileID: 1395665611}
   waterHeightSlider: {fileID: 1166265282}
