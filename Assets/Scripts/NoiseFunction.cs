@@ -33,7 +33,7 @@ static class NoiseFunction
         for(int i = 0; i < maxStack; i++)
         {
             float currentInfluence = influence.Pop();
-            perlinCalculated += (1/currentInfluence) * Mathf.PerlinNoise(x * frequency, z * frequency);
+            perlinCalculated += currentInfluence * Mathf.PerlinNoise(x * frequency, z * frequency);
             frequency *= 2;
         }
 

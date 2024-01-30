@@ -4680,8 +4680,8 @@ MonoBehaviour:
   waterFrequency: 1
   waterScale: 1
   worldSize:
-    x: 100
-    z: 100
+    x: 3
+    z: 3
   grassCube: {fileID: 8933353079184782786, guid: 4d80cb7bb0192ad40b040d09d8e6863c, type: 3}
   dirtCube: {fileID: 8933353079184782786, guid: ec0b98f98eadcbf499074b21f105c8c3, type: 3}
   shallowWaterCube: {fileID: 8933353079184782786, guid: 26567bf87f119c24bbe78f3d01958cf0, type: 3}
