@@ -496,7 +496,8 @@ public class TerrainGenerator : MonoBehaviour
         {
             Destroy(obj);
         }
-        
+
+        waterCubes.Clear();
         //add new ones.
 
         //create new map (lazy way)
