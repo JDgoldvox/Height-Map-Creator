@@ -249,8 +249,6 @@ public class WorldGeneratorControls : MonoBehaviour
 
     public void ConfirmSizeChange()
     {
-        Debug.Log("X: " + xSize + " Z: " + zSize);
-
         S_terrainGenerator.ChangeWorldSize(xSize, zSize);
     }
 
