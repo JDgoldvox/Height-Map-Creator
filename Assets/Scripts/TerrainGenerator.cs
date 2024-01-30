@@ -47,6 +47,7 @@ public class TerrainGenerator : MonoBehaviour
     private bool isWaveMovingPositiveFrequency = true;
     private float amountToMoveWave = 0.3f;
 
+
     private void Awake()
     {
         S_worldGeneratorControls = GetComponent<WorldGeneratorControls>();
@@ -465,5 +466,37 @@ public class TerrainGenerator : MonoBehaviour
         combinedMeshParent.SetActive(false);
 
         showGiantMesh = false;
+    }
+
+    public void ChangeWorldSize(int xInput, int zInput)
+    {
+        worldSize.x = xInput;
+        worldSize.z = zInput;
+
+        //delete all previous items
+
+        //delete all previous items
+
+        foreach (UnderGroundCore core in world.Values)
+        {
+            foreach (GameObject obj in core.cubes)
+            {
+                Destroy(obj);
+            }
+        }
+
+        foreach (GameObject obj in world.Keys)
+        {
+            Destroy(obj);
+        }
+
+        world.Clear();
+
+        //add new ones.
+
+        //create new map (lazy way)
+        InstantiateCubes();
+        UpdateBlocks(true, false);
+        UpdateBlocks(true, true);
     }
 }

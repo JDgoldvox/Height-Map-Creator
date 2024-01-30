@@ -4,10 +4,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.InputSystem;
+using System.Drawing;
 //REMOVE UI ELEMENTS
 
 public class WorldGeneratorControls : MonoBehaviour
 {
+    //size
+    [SerializeField] private TMPro.TMP_InputField xInput;
+    [SerializeField] private TMPro.TMP_InputField zInput;
+
     //land
     [SerializeField] private Slider landFrequencySlider;
     [SerializeField] private Slider landScaleSlider;
@@ -48,7 +53,6 @@ public class WorldGeneratorControls : MonoBehaviour
 
     private float waterFrequencyOldValue = 0f;
     private float waterFrequencyNewValue = 0f;
-    
 
     private float waterHeightNewValue = 0f;
     private float waterHeightOldValue = 0f;
@@ -57,6 +61,9 @@ public class WorldGeneratorControls : MonoBehaviour
 
     private bool isSliderBeingDragged = false;
     private bool updateOnlyWater = false;
+
+    private int xSize = 0;
+    private int zSize = 0;
 
     private void Awake()
     {
@@ -212,6 +219,39 @@ public class WorldGeneratorControls : MonoBehaviour
     {
         //turn it to opposite
         S_terrainGenerator.enableWaves = !S_terrainGenerator.enableWaves;
+    }
+
+    public void ChangeX()
+    {
+        if (int.TryParse(xInput.text, out xSize))
+        {
+
+        }
+        else
+        {
+            // Parsing failed, handle the error accordingly (e.g., show an error message)
+            Debug.LogError("Failed to parse input string to integer.");
+        }
+    }
+
+    public void ChangeZ()
+    {
+        if (int.TryParse(zInput.text, out zSize))
+        {
+
+        }
+        else
+        {
+            // Parsing failed, handle the error accordingly (e.g., show an error message)
+            Debug.LogError("Failed to parse input string to integer.");
+        }
+    }
+
+    public void ConfirmSizeChange()
+    {
+        Debug.Log("X: " + xSize + " Z: " + zSize);
+
+        S_terrainGenerator.ChangeWorldSize(xSize, zSize);
     }
 
     private void IsMouseDragging()

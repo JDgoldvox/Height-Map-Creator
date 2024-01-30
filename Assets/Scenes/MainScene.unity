@@ -1156,7 +1156,19 @@ MonoBehaviour:
       m_Calls: []
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1676683586}
+        m_TargetAssemblyTypeName: WorldGeneratorControls, Assembly-CSharp
+        m_MethodName: ChangeZ
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnTouchScreenKeyboardStatusChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2258,7 +2270,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Enter text...
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2369,7 +2381,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 486, y: -6}
+  m_AnchoredPosition: {x: 474, y: -6}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1027702843
@@ -2551,7 +2563,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1102717177}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1676683586}
+        m_TargetAssemblyTypeName: WorldGeneratorControls, Assembly-CSharp
+        m_MethodName: ConfirmSizeChange
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1102717177
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2709,7 +2733,19 @@ MonoBehaviour:
       m_Calls: []
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1676683586}
+        m_TargetAssemblyTypeName: WorldGeneratorControls, Assembly-CSharp
+        m_MethodName: ChangeX
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnTouchScreenKeyboardStatusChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -4359,7 +4395,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 547.2, y: 305}
+  m_AnchoredPosition: {x: 303, y: 281}
   m_SizeDelta: {x: 33.3889, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1484310159
@@ -4644,8 +4680,8 @@ MonoBehaviour:
   waterFrequency: 1
   waterScale: 1
   worldSize:
-    x: 30
-    z: 30
+    x: 2
+    z: 2
   grassCube: {fileID: 8933353079184782786, guid: 4d80cb7bb0192ad40b040d09d8e6863c, type: 3}
   dirtCube: {fileID: 8933353079184782786, guid: ec0b98f98eadcbf499074b21f105c8c3, type: 3}
   shallowWaterCube: {fileID: 8933353079184782786, guid: 26567bf87f119c24bbe78f3d01958cf0, type: 3}
@@ -4680,6 +4716,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80710ed7a055a0c47a84fd26904ae152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  xInput: {fileID: 1116911246}
+  zInput: {fileID: 487870639}
   landFrequencySlider: {fileID: 1466039603}
   landScaleSlider: {fileID: 1409980689}
   landOctavesSlider: {fileID: 2140397561}
@@ -5910,7 +5948,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 608, y: 305}
+  m_AnchoredPosition: {x: 363.80005, y: 281}
   m_SizeDelta: {x: 33.3889, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2090539882
